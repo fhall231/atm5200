@@ -1,5 +1,5 @@
 from numpy import cos, pi, linspace
-from _miepython import mie_S1_S2
+from _litemielib import mie_S
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
@@ -10,7 +10,7 @@ import matplotlib.cm as cmx
 
 def calc_Mie_P(costheta_, m, x):
 
-    s1_t, s2_t = mie_S1_S2(m,x,costheta_)
+    s1_t, s2_t = mie_S(m,x,costheta_)
     P_ = (s1_t.real**2 + s1_t.imag**2 + s2_t.real**2 + s2_t.imag**2) * 0.5
     return P_           ### l'integrale deve fare ssa
 
