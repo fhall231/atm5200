@@ -1,9 +1,11 @@
 from matplotlib import pyplot as plt
 from matplotlib import colors
-from numpy import loadtxt, linspace
+from numpy import loadtxt, linspace#, savetxt, c_
 import matplotlib.ticker as tkr
 
+
 ''' https://matplotlib.org/stable/users/explain/colors/colormaps.html '''
+
 
 def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
     new_cmap = colors.LinearSegmentedColormap.from_list(
@@ -11,34 +13,39 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
         cmap(linspace(minval, maxval, n)))
     return new_cmap
 
-#═════════════════════════════════════════════════════════════════════════════
-
-# cols: x y z |E|^2 Ex.r Ex.i Ey.r Ey.i Ez.r Ez.i
-
-file = 'IntField-Y_example'; side = 4.2; ms = 2.5; saveas = 'IntFields_water_droplet'
-
 SAVEFIG = bool(1)
-MASK = bool(1)
-PLOTX = bool(0)
-FS = 12
 
+file = 'IntField_example.dat' # 'IntField-Y_example'
+side = 4.2
+markersize = 2.5
+saveas = 'IntFields_water_droplet'
+FS = 12
 cmap = truncate_colormap(plt.get_cmap('gnuplot'), minval=0.04, maxval=0.99, n=100)
 
-
+# x y z |E|^2 Ex.r Ex.i Ey.r Ey.i Ez.r Ez.i
 Y, X, Z, E2 = loadtxt(file,skiprows=1,usecols=[0,1,2,3],unpack=True)
 
+### save file with minimal data
+# tmpmask = (X==min(abs(X))) | (Y==min(abs(Y))) | (Z==min(abs(Z)) )
+# savetxt('IntField_example.dat',c_[Y[tmpmask], X[tmpmask], Z[tmpmask], E2[tmpmask]])
 
-if PLOTX:
-    X /= 0.4764
-    Y /= 0.4764
-    Z /= 0.4764
-    side = 5.1; ms = 1.5
+### Projection 1
+
+mask1 = Z == min(abs(Z))
+Xp1,Yp1,E2p1 = X[mask1], Y[mask1], E2[mask1]
+
+### Projection 1
+
+mask2 = X == min(abs(X))
+Yp2,Zp2,E2p2 = Y[mask2], Z[mask2], E2[mask2]
+
+
 
 txt = "Square modulus of the internal field in a water droplet 8 um in diameter\n"
 txt += "for two projections. Incident beam propagates along the $z$ axis."
 
 
-'''   PLOT   '''
+''' ────────────── PLOT alpha ────────────── '''
 
 fig, axs = plt.subplots(1,2,figsize=(11,4.8), dpi=600)
 
@@ -46,15 +53,8 @@ ax=axs[0]
 
 ax.set_title('$z=0$', fontsize=FS, pad=12)
 
-if MASK:
-    mask = Z == min(abs(Z))#(-0.00248<X) & (X<0.00248)
-    Xp,Yp,E2p = X[mask], Y[mask], E2[mask]
-else:
-    mask = (Z < 0) & (Z>-0.5)
-    Xp,Yp,E2p = X[mask], Y[mask], E2[mask]
 
-
-pcm = ax.scatter(Xp,Yp,c=E2p,s=ms,marker='s', cmap=cmap,edgecolors='none' )
+pcm = ax.scatter(Xp1,Yp1,c=E2p1,s=markersize,marker='s', cmap=cmap,edgecolors=None)
 
 ### plot settings
 
@@ -75,15 +75,7 @@ ax=axs[1]
 ax.set_title('$x=0$', fontsize=FS, pad=12)
 
 
-if MASK:
-    mask = X == min(abs(X))
-    Yp,Zp,E2p = Y[mask], Z[mask], E2[mask]
-else:
-    mask = X <=0.2
-    Yp,Zp,E2p = Y[mask], Z[mask], E2[mask]
-
-
-pcm = ax.scatter(Yp,Zp,c=E2p,s=ms,marker='s', cmap=cmap,edgecolors='none')
+pcm = ax.scatter(Yp2,Zp2,c=E2p2,s=markersize,marker='s', cmap=cmap,edgecolors=None)
 cb = plt.colorbar(pcm, ax=ax, pad=0.022, format=tkr.FormatStrFormatter('%.0f'))
 cb.set_label(label='$|E^2|$ [AU]', size=FS)
 
