@@ -4,7 +4,6 @@ from matplotlib import pyplot as plt
 from scipy.integrate import simpson
 
 
-
 def load_adda_pars(root,folder):
     
     with open(root+folder+'log','r',) as f:
@@ -12,15 +11,15 @@ def load_adda_pars(root,folder):
             
             if line.startswith('lambda'):
                 wl = float( line.split(':')[1] ) 
-                print('wl =', wl)
+                print(f'wl = {wl:.3f}')
 
             if line.startswith('refractive index'):
                 m = complex( line.split(':')[1].replace("i","j") )
-                print('m =', m)
+                print(f'm = {m:.3f}')
 
             if line.startswith('Volume-equivalent size'):
                 x = float( line.split(':')[1] )
-                print('x =', x)
+                print(f'x = {x:.3f}')
                 
             elif line.startswith('nhere we go'):
                 break 
@@ -50,14 +49,13 @@ I = 6.283185 * simpson(Ssq_*sin(tt_),tt_)
 
 
 Cext, Qext, Cabs, Qabs = list(loadtxt(root+folder+'CrossSec-Y', usecols=(2)))
-
 Cext_S1 = 12.5663/k2*S1a_r[0].real
 Cext_S2 = 12.5663/k2*S2a_r[0].real
 
-print('integrate adda |S|^2:', I)
-print('k2Csca:', k2*(Cext-Cabs) )
-print(f'4pi/k2 Re0 = {Cext_S1:.3f}, {Cext_S2:.3f}')
-print(f'CrossSec file: {Cext:.3f}, {Qext:.3f}, {Cabs:.3f}, {Qabs:.3f}')
+print(f'integrate adda |S|^2 = {I:.3f}')
+print(f'k2Csca = {k2*(Cext-Cabs):.3f}')
+print(f'Cext = {Cext:.3f}, {Cext_S1:.3f}, {Cext_S2:.3f}')
+print(f'adda calc: {Qext:.3f}, {Qext-Qabs:.3f} ,{Qabs:.3f}')
 
 
 
@@ -66,7 +64,7 @@ print(f'CrossSec file: {Cext:.3f}, {Qext:.3f}, {Cabs:.3f}, {Qabs:.3f}')
 S1m_, S2m_ = mie_S_(conj(m), x, cos(tt_))
 
 Qext, Qsca, Qabs, Qbck, g = mie_Q(conj(m), x)
-print(f'Miepython calc: : {Qext:.3f}, {Qsca:.3f}, {Qabs:.3f}')
+print(f'Mie calc: {Qext:.3f}, {Qsca:.3f}, {Qabs:.3f}')
 
 
 
@@ -74,17 +72,17 @@ print(f'Miepython calc: : {Qext:.3f}, {Qsca:.3f}, {Qabs:.3f}')
 
 fig, ax = plt.subplots(figsize=(7,4),dpi=300)
 
-ax.plot(tt_, S1a_r, '-', c='#ff2222', lw=.7, label=r'$\mathfrak{Re}\,S_1$')
-ax.plot(tt_, S1m_.real, ':', c='#bb0000', lw=.7, label=r'$\mathfrak{Re}\,S_1$')
+ax.plot(tt_, S1a_r, '-', c='#ff2222', lw=.7, label=r'$\mathfrak{Re}\,S_1$ adda')
+ax.plot(tt_, S1m_.real, ':', c='#bb0000', lw=.7, label=r'$\mathfrak{Re}\,S_1$ miepy ')
 
-ax.plot(tt_, S1a_i, '-', c='#ff9900', lw=.7, label=r'$\mathfrak{Im}\,S_1$')
-ax.plot(tt_, S1m_.imag, ':', c='#bb5500', lw=.7, label=r'$\mathfrak{Im}\,S_1$')
+ax.plot(tt_, S1a_i, '-', c='#ff9900', lw=.7, label=r'$\mathfrak{Im}\,S_1$ adda')
+ax.plot(tt_, S1m_.imag, ':', c='#bb5500', lw=.7, label=r'$\mathfrak{Im}\,S_1$ miepy ')
 
-ax.plot(tt_, S2a_r, '-', c='#2288ee', lw=.7, label=r'$\mathfrak{Re}\,S_2$')
-ax.plot(tt_, S2m_.real, ':', c='#0055aa', lw=.7, label=r'$\mathfrak{Re}\,S_2$')
+ax.plot(tt_, S2a_r, '-', c='#2288ee', lw=.7, label=r'$\mathfrak{Re}\,S_2$ adda')
+ax.plot(tt_, S2m_.real, ':', c='#0055aa', lw=.7, label=r'$\mathfrak{Re}\,S_2$ miepy ')
 
-ax.plot(tt_, S2a_i, '-', c='#88dd22', lw=.7, label=r'$\mathfrak{Im}\,S_2$')
-ax.plot(tt_, S2m_.imag, ':', c='#33aa00', lw=.7, label=r'$\mathfrak{Im}\,S_2$')
+ax.plot(tt_, S2a_i, '-', c='#88dd22', lw=.7, label=r'$\mathfrak{Im}\,S_2$ adda')
+ax.plot(tt_, S2m_.imag, ':', c='#33aa00', lw=.7, label=r'$\mathfrak{Im}\,S_2$ miepy ')
 
 # ax.set_yscale('log')
 ax.set_xlabel(r'$\vartheta$ [rad]')
